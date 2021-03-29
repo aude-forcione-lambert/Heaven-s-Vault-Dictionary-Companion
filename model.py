@@ -37,7 +37,7 @@ Static class containing a dictionary of all words and usefull functions related 
         data = {}
         data["dictionary"] = []
         sorted_entries = Dictionary.entries[Dictionary.sort(Dictionary.keys())]
-        for word,definition in sorted_entries:
+        for word,definition in sorted_entries.items():
             data["dictionary"].append({
                     "word": word,
                     "translation": definition.translation,
@@ -90,7 +90,7 @@ Static class containing a dictionary of all words and usefull functions related 
         return: list of dictionary keys
         '''
         matches = []
-        for word, definition in Dictionary.entries:
+        for word, definition in Dictionary.entries.items():
             if expression in definition.translation:
                 matches.append(word)
         return Dictionary.sort(matches)
