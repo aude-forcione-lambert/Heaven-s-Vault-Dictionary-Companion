@@ -1,11 +1,12 @@
 import sys
 
-from PyQt5.QtCore import Qt
+from PyQt5.QtCore import Qt, QRegExp
 from PyQt5.QtWidgets import *
-from PyQt5.QtGui import QFont, QFontDatabase, QIcon
+from PyQt5.QtGui import QFont, QFontDatabase, QIcon, QRegExpValidator
 
 QFontDatabase.addApplicationFont(":/Noto & Ancient Runes Reloaded/NotoSans&AncientRunesReloaded-Regular.ttf")
 ancient_font = QFont("Noto Sans & Ancient Runes Reloaded", 11)
+
 
 class MainWindow(QMainWindow):
     def __init__(self):
@@ -23,17 +24,32 @@ class MainWindow(QMainWindow):
 
         self.__createMenu()
 
+        self.keyboard = Keyboard()
+
     def __createDisplay(self):
         self.dictionaryPanel = DictionaryPanel()
-        self.definitionPanel = DefinitionPanel()
+        #self.definitionPanel = DefinitionPanel()
+        self.editPanel = EditPanel()
         self.mainLayout.addWidget(self.dictionaryPanel)
-        self.mainLayout.addWidget(self.definitionPanel)
+        #self.mainLayout.addWidget(self.definitionPanel)
+        self.mainLayout.addWidget(self.editPanel)
         self.mainLayout.setContentsMargins(1,1,0,0)
         self.mainLayout.setSpacing(1)
 
     def __createMenu(self):
-        self.menu = self.menuBar().addMenu("File")
-        self.menu.addAction("Exit", self.close)
+        self.file = self.menuBar().addMenu("File")
+        self.fileOpen = self.file.addAction("Open")
+        self.fileSave = self.file.addAction("Save")
+        self.file.addSeparator()
+        self.file.addAction("Exit", self.closeApp)
+        self.menuBar().addAction("\u2328", self.showKeyboard)
+
+    def showKeyboard(self):
+        self.keyboard.show()
+
+    def closeApp(self):
+        self.keyboard.close()
+        self.close()
 
 
 class DictionaryPanel(QFrame):
@@ -50,7 +66,14 @@ class DictionaryPanel(QFrame):
         self.__createDisplay()
 
     def __createDisplay(self):
+        searchBarWrapper = QFrame()
+        searchBarLayout = QHBoxLayout()
+        searchBarLayout.setContentsMargins(0,0,0,0)
+        searchBarWrapper.setLayout(searchBarLayout)
         self.searchBar = QLineEdit()
+        searchBarLayout.addWidget(self.searchBar)
+        searchBarLayout.addWidget(QLabel("\U0001f50d"))
+
         self.newWordBtn = QPushButton("New Word")
 
         self.wordListFrame = QFrame()
@@ -65,7 +88,7 @@ class DictionaryPanel(QFrame):
         scrollArea.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOn)
         scrollArea.setWidget(self.wordListFrame)
 
-        self.layout.addWidget(self.searchBar)
+        self.layout.addWidget(searchBarWrapper)
         self.layout.addWidget(self.newWordBtn)
         self.layout.addWidget(scrollArea)
 
@@ -86,7 +109,7 @@ class DictionaryPanel(QFrame):
             self.removeWord(word)
 
 
-class DefinitionPanel(QFrame):
+class EditPanel(QFrame):
     def __init__(self):
         super().__init__()
         self.setFixedSize(377, 610)
@@ -97,7 +120,51 @@ class DefinitionPanel(QFrame):
         self.__createDisplay()
 
     def __createDisplay(self):
-        print("TODO")
+        self.wordWrapper = QFrame()
+        self.wordLayout = QHBoxLayout()
+        self.wordLayout.setContentsMargins(0,0,0,0)
+        self.wordWrapper.setLayout(self.wordLayout)
+        self.wordLayout.addWidget(QLabel("Spelling:"))
+        self.wordEdit = QLineEdit()
+        rx = QRegExp("^[\ue000-\ue02c]+$")
+        validator = QRegExpValidator(rx, self.wordEdit)
+        self.wordEdit.setValidator(validator)
+        self.wordLayout.addWidget(self.wordEdit)
+
+        self.translationWrapper = QFrame()
+        self.translationLayout = QHBoxLayout()
+        self.translationLayout.setContentsMargins(0,0,0,0)
+        self.translationWrapper.setLayout(self.translationLayout)
+        self.translationLayout.addWidget(QLabel("Translation:"))
+        self.translationEdit = QLineEdit()
+        self.translationLayout.addWidget(self.translationEdit)
+
+        self.confidenceWrapper = QGroupBox()
+        self.confidenceLayout = QVBoxLayout()
+        self.confidenceWrapper.setLayout(self.confidenceLayout)
+        self.confidenceUnspecifiedButton = QRadioButton("Unspecified")
+        self.confidenceLowButton = QRadioButton("Low")
+        self.confidenceMediumButton = QRadioButton("Medium")
+        self.confidenceHighButton = QRadioButton("High")
+        self.confidenceWrapper.setTitle("Confidence:")
+        self.confidenceLayout.addWidget(self.confidenceUnspecifiedButton)
+        self.confidenceLayout.addWidget(self.confidenceLowButton)
+        self.confidenceLayout.addWidget(self.confidenceMediumButton)
+        self.confidenceLayout.addWidget(self.confidenceHighButton)
+        self.confidenceUnspecifiedButton.setChecked(True)
+
+        self.notesEditor = QTextEdit()
+
+        self.saveButton = QPushButton("Save")
+
+        self.layout.setSpacing(8)
+        self.layout.addWidget(self.wordWrapper)
+        self.layout.addWidget(self.translationWrapper)
+        self.layout.addWidget(self.confidenceWrapper)
+        self.layout.addWidget(QLabel("Notes:"))
+        self.layout.addWidget(self.notesEditor)
+        self.layout.addWidget(self.saveButton)
+
 
 class Keyboard(QDialog):
     def __init__(self):
