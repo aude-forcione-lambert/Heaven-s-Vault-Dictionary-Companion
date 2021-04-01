@@ -1,6 +1,8 @@
+import sys
+
 from PyQt5.QtCore import Qt, QRegExp
 from PyQt5.QtWidgets import *
-from PyQt5.QtGui import QFont, QFontDatabase, QIcon, QRegExpValidator
+from PyQt5.QtGui import QFont, QFontDatabase, QIcon, QRegExpValidator, QCloseEvent
 
 QFontDatabase.addApplicationFont(":/Noto & Ancient Runes Reloaded/NotoSans&AncientRunesReloaded-Regular.ttf")
 ancient_font = QFont("Noto Sans & Ancient Runes Reloaded", 11)
@@ -48,6 +50,9 @@ class MainWindow(QMainWindow):
     def closeApp(self):
         self.keyboard.close()
         self.close()
+
+    def closeEvent(self, event: QCloseEvent):
+        self.closeApp()
 
 
 class DictionaryPanel(QFrame):
@@ -176,60 +181,15 @@ class Keyboard(QDialog):
         self.__createButtons(self.generalLayout)
 
     def __createButtons(self, layout: QGridLayout):
-        self.buttons = {
-                "\ue000": (0,0),
-                "\ue001": (0,1),
-                "\ue002": (0,2),
-                "\ue003": (0,3),
-                "\ue004": (0,4),
-                "\ue005": (0,5),
-                "\ue006": (0,6),
-                "\ue007": (0,7),
-                "\ue008": (0,8),
-                "\ue009": (0,9),
-                "\ue00a": (1,0),
-                "\ue00b": (1,1),
-                "\ue00c": (1,2),
-                "\ue00d": (1,3),
-                "\ue00e": (1,4),
-                "\ue00f": (1,5),
-                "\ue010": (1,6),
-                "\ue011": (1,7),
-                "\ue012": (1,8),
-                "\ue013": (1,9),
-                "\ue014": (2,0),
-                "\ue015": (2,1),
-                "\ue016": (2,2),
-                "\ue017": (2,3),
-                "\ue018": (2,4),
-                "\ue019": (2,5),
-                "\ue01a": (2,6),
-                "\ue01b": (2,7),
-                "\ue01c": (2,8),
-                "\ue01d": (2,9),
-                "\ue01e": (3,0),
-                "\ue01f": (3,1),
-                "\ue020": (3,2),
-                "\ue021": (3,3),
-                "\ue022": (3,4),
-                "\ue023": (3,5),
-                "\ue024": (3,6),
-                "\ue025": (3,7),
-                "\ue026": (3,8),
-                "\ue027": (3,9),
-                "\ue028": (4,0),
-                "\ue029": (4,1),
-                "\ue02a": (4,2),
-                "\ue02b": (4,3),
-                "\ue02c": (4,4),
-                "\ue02d": (4,5),
-                "\ue02e": (4,6),
-                "\ue02f": (4,7),
-                }
-        for btnText, pos in self.buttons.items():
+        self.buttons = {}
+        baseChar = ord("\ue000")
+        for i in range(48):
+            btnText = chr(baseChar+i)
+            xpos = i//10
+            ypos = i%10
             self.buttons[btnText] = QPushButton(btnText)
             self.buttons[btnText].setFixedSize(40,40)
-            layout.addWidget(self.buttons[btnText], pos[0], pos[1])
+            layout.addWidget(self.buttons[btnText], xpos, ypos)
 
 
 def main():
