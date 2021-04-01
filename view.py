@@ -1,20 +1,22 @@
 import sys
+import os
 
 from PyQt5.QtCore import Qt, QRegExp
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import QFont, QFontDatabase, QIcon, QRegExpValidator, QCloseEvent
-
-QFontDatabase.addApplicationFont(":/Noto & Ancient Runes Reloaded/NotoSans&AncientRunesReloaded-Regular.ttf")
-ancient_font = QFont("Noto Sans & Ancient Runes Reloaded", 11)
 
 
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
         self.setWindowTitle("Heaven's Vault Dictionary Companion")
-        self.setFont(ancient_font)
         self.setWindowIcon(QIcon("icon.png"))
         self.setFixedSize(759, 639)
+
+        appPath = os.path.dirname(os.path.abspath(__file__))
+        QFontDatabase.addApplicationFont(appPath+"/Noto & Ancient Runes Reloaded/NotoSans&AncientRunesReloaded-Regular.ttf")
+        ancientFont = QFont("Noto Sans & Ancient Runes Reloaded", 14)
+        self.setFont(ancientFont)
 
         self.__centralWidget = QWidget(self)
         self.setCentralWidget(self.__centralWidget)
@@ -24,7 +26,7 @@ class MainWindow(QMainWindow):
 
         self.__createMenu()
 
-        self.keyboard = Keyboard()
+        self.keyboard = Keyboard(ancientFont)
 
     def __createDisplay(self):
         self.dictionaryPanel = DictionaryPanel()
@@ -143,17 +145,17 @@ class EditPanel(QFrame):
         self.translationLayout.addWidget(self.translationEdit)
 
         self.confidenceWrapper = QGroupBox()
-        self.confidenceLayout = QVBoxLayout()
+        self.confidenceLayout = QGridLayout()
         self.confidenceWrapper.setLayout(self.confidenceLayout)
         self.confidenceUnspecifiedButton = QRadioButton("Unspecified")
         self.confidenceLowButton = QRadioButton("Low")
         self.confidenceMediumButton = QRadioButton("Medium")
         self.confidenceHighButton = QRadioButton("High")
         self.confidenceWrapper.setTitle("Confidence:")
-        self.confidenceLayout.addWidget(self.confidenceUnspecifiedButton)
-        self.confidenceLayout.addWidget(self.confidenceLowButton)
-        self.confidenceLayout.addWidget(self.confidenceMediumButton)
-        self.confidenceLayout.addWidget(self.confidenceHighButton)
+        self.confidenceLayout.addWidget(self.confidenceUnspecifiedButton,0,0)
+        self.confidenceLayout.addWidget(self.confidenceLowButton,1,0)
+        self.confidenceLayout.addWidget(self.confidenceMediumButton,0,1)
+        self.confidenceLayout.addWidget(self.confidenceHighButton,1,1)
         self.confidenceUnspecifiedButton.setChecked(True)
 
         self.notesEditor = QTextEdit()
@@ -170,10 +172,10 @@ class EditPanel(QFrame):
 
 
 class Keyboard(QDialog):
-    def __init__(self):
+    def __init__(self, font):
         super().__init__()
         self.setWindowTitle("Ancient Runes Keyboard")
-        self.setFont(ancient_font)
+        self.setFont(font)
         self.setFixedSize(440, 230)
 
         self.generalLayout = QGridLayout()
