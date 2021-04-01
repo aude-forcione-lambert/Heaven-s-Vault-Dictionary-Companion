@@ -1,17 +1,17 @@
+from typing import List
 import json
 
 class Definition:
-'''
-Class encapsulating the different parts of a word's definition
-'''
-
-    def __init__(self, translation: str, components: list[str], confidence: int, notes:str):
     '''
-    translation: word's translation in the user's language
-    components: list of smaller words composing the ancient word
-    confidence: confidence in the accuracy of the translation (0: unspecified, 1: low, 2: high, 3: confirmed)
-    notes: additional user's notes
+    Class encapsulating the different parts of a word's definition
     '''
+    def __init__(self, translation: str, components: List[str], confidence: int, notes: str):
+        '''
+        translation: word's translation in the user's language
+        components: list of smaller words composing the ancient word
+        confidence: confidence in the accuracy of the translation (0: unspecified, 1: low, 2: high, 3: confirmed)
+        notes: additional user's notes
+        '''
         self.translation = translation
         self.components = components
         self.confidence = confidence
@@ -19,17 +19,16 @@ Class encapsulating the different parts of a word's definition
 
 
 class Dictionary:
-'''
-Static class containing a dictionary of all words and usefull functions related to it
-'''
-
+    '''
+    Static class containing a dictionary of all words and usefull functions related to it
+    '''
     entries = {} # Dictionary with words (strings) as keys and definitions (Definition instances) as values
 
     @staticmethod
     def add_entry(cls, word: str, definition: Definition):
         if word in Dictionary.entries:
             raise Exception("Word already exists in the dictionary")
-        else
+        else:
             Dictionary.entries[word] = definition
 
     @staticmethod
@@ -57,7 +56,7 @@ Static class containing a dictionary of all words and usefull functions related 
                 Dictionary.entries[entry["word"]] = definition
 
     @staticmethod
-    def sort(cls, words: list[str]=None -> list[str]):
+    def sort(cls, words: List[str]=None) -> List[str]:
         '''
         Sorts a list of ancient words from right to left ignoring punctuation marks
         words: list of words to sort. If words=None, use the words in the dictionary instead
@@ -72,7 +71,7 @@ Static class containing a dictionary of all words and usefull functions related 
         return reversed(word.strip([" ", "\ue00a", "\ue00b", "\ue00c"]))
 
     @staticmethod
-    def search_words(cls, expression: str -> list[str]):
+    def search_words(cls, expression: str) -> List[str]:
         '''
         Search for words in the dictionary matching parts of the expression or containing the expression
         return: list of dictionary keys
@@ -84,7 +83,7 @@ Static class containing a dictionary of all words and usefull functions related 
         return Dictionary.sort(matches)
 
     @staticmethod
-    def search_translations(cls, expression: str -> list[str]):
+    def search_translations(cls, expression: str) -> List[str]:
         '''
         Search for translations in the dictionary containing the expression 
         return: list of dictionary keys
