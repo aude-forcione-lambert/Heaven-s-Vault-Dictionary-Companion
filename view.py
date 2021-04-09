@@ -1,3 +1,5 @@
+from typing import List, Dict
+
 import sys
 import os
 
@@ -7,6 +9,9 @@ from PyQt5.QtGui import QFont, QFontDatabase, QIcon, QRegExpValidator, QCloseEve
 
 
 class MainWindow(QMainWindow):
+    '''
+    Main window of the application.
+    '''
     def __init__(self):
         super().__init__()
         self.setWindowTitle("Heaven's Vault Dictionary Companion")
@@ -30,6 +35,9 @@ class MainWindow(QMainWindow):
         self.keyboard = Keyboard(ancient_font)
 
     def _create_display(self):
+        '''
+        Populates the central widget.
+        '''
         self.dictionary_panel = DictionaryPanel()
         self.definition_panel = DefinitionPanel()
         self.edit_panel = EditPanel()
@@ -49,6 +57,9 @@ class MainWindow(QMainWindow):
         self._main_layout.setSpacing(1)
 
     def _create_menu(self):
+        '''
+        Populates the menu.
+        '''
         self.file = self.menuBar().addMenu("File")
         self.fileOpen = self.file.addAction("Open")
         self.fileSave = self.file.addAction("Save")
@@ -57,32 +68,53 @@ class MainWindow(QMainWindow):
         self.menuBar().addAction("\u2328", self.show_keyboard)
 
     def edit_mode(self):
+        '''
+        Shows the word edition panel and hides the definition panel.
+        '''
         self.definition_panel.hide()
         self.closed_panel.hide()
         self.edit_panel.show()
 
     def read_mode(self):
+        '''
+        Shows the word definition panel and hides the edition panel.
+        '''
         self.edit_panel.hide()
         self.closed_panel.hide()
         self.definition_panel.show()
 
     def closed_mode(self):
+        '''
+        Hides both the definition and edition panels and shows a placeholder empty panel.
+        '''
         self.edit_panel.hide()
         self.definition_panel.hide()
         self.closed_panel.show()
 
     def show_keyboard(self):
+        '''
+        Opens the keyboard dialog.
+        '''
         self.keyboard.show()
 
     def close_app(self):
+        '''
+        Function to execute when closing the application.
+        '''
         self.keyboard.close()
         self.close()
 
     def closeEvent(self, event: QCloseEvent):
+        '''
+        Overrides the window's close event
+        '''
         self.close_app()
 
 
 class DictionaryPanel(QFrame):
+    '''
+    Frame displaying the words saved in the dictionary. Displayed on the left side of the main window.
+    '''
     def __init__(self):
         super().__init__()
         self.setFixedSize(377, 610)
@@ -91,18 +123,21 @@ class DictionaryPanel(QFrame):
         self.setFrameStyle(QFrame.Box)
         self.setFrameShadow(QFrame.Sunken)
 
-        self._word_list = {}
+        self._word_list = {} # Dictionary with ancient words (strings) as keys and QPushButtons as values
 
         self._create_display()
 
     def _create_display(self):
+        '''
+        Populates the frame.
+        '''
         search_bar_wrapper = QFrame()
         search_bar_layout = QHBoxLayout()
         search_bar_layout.setContentsMargins(0,0,0,0)
         search_bar_wrapper.setLayout(search_bar_layout)
         self.search_bar = QLineEdit()
         search_bar_layout.addWidget(self.search_bar)
-        search_bar_layout.addWidget(QLabel("\U0001f50d"))
+        search_bar_layout.addWidget(QLabel("\U0001f50d")) # Magnifying glass emoji
 
         self.new_word_btn = QPushButton("New Word")
 
@@ -122,24 +157,40 @@ class DictionaryPanel(QFrame):
         self._layout.addWidget(self.new_word_btn)
         self._layout.addWidget(scroll_area)
 
-    def add_word(self, word, translation):
+    def add_word(self, word: str, translation: str) -> QPushButton:
+        '''
+        Adds a word button to the display.
+        word: ancient word
+        translation: ancient word's translation
+        return: button instance for the word
+        '''
         word_btn = QPushButton(word+"\n"+translation)
         self._word_list[word] = word_btn
         self._word_list_layout.addWidget(word_btn)
         self._word_list_frame.adjustSize()
         return word_btn
 
-    def remove_word(self, word):
+    def remove_word(self, word: str):
+        '''
+        Removes a word button from the display.
+        word: ancient word
+        '''
         word_btn = self._word_list.pop(word)
         word_btn.deleteLater()
         self._word_list_frame.adjustSize()
 
     def clear_words(self):
+        '''
+        Removes all word buttons from the display.
+        '''
         for word in self._word_list:
             self.remove_word(word)
 
 
 class EditPanel(QFrame):
+    '''
+    Frame allowing to create or edit a word and its definition. Displayed on the right side of the main wondow.
+    '''
     def __init__(self):
         super().__init__()
         self.setFixedSize(377, 610)
@@ -150,6 +201,9 @@ class EditPanel(QFrame):
         self._create_display()
 
     def _create_display(self):
+        '''
+        Populates the frame.
+        '''
         word_wrapper = QFrame()
         word_layout = QHBoxLayout()
         word_layout.setContentsMargins(0,0,0,0)
@@ -203,9 +257,19 @@ class EditPanel(QFrame):
         self._layout.addWidget(btns_wrapper)
 
     def empty_panel(self):
+        '''
+        Resets all fields to their default value.
+        '''
         self.fill_panel("", "", 0, "")
 
-    def fill_panel(self, word, translation, confidence, notes):
+    def fill_panel(self, word: str, translation: str, confidence: int, notes: str):
+        '''
+        Fills the fields with the specified values.
+        word: ancient word
+        translation: ancient word's translation
+        confidence: level of confidence in the translation
+        notes: additional notes
+        '''
         self.word_edit.setText(word)
         self.translation_edit.setText(translation)
         if confidence == 0:
@@ -220,6 +284,9 @@ class EditPanel(QFrame):
 
 
 class DefinitionPanel(QFrame):
+    '''
+    Frame displaying a word and its definition.
+    '''
     def __init__(self):
         super().__init__()
         self.setFixedSize(377, 610)
@@ -230,6 +297,9 @@ class DefinitionPanel(QFrame):
         self._create_display()
 
     def _create_display(self):
+        '''
+        Populates the frame.
+        '''
         self.word = QLabel()
 
         self.translation = QLabel()
@@ -249,7 +319,14 @@ class DefinitionPanel(QFrame):
         self._layout.addWidget(self.notes)
         self._layout.addWidget(self.edit_btn)
 
-    def fill_panel(self, word, translation, confidence, notes):
+    def fill_panel(self, word: str, translation: str, confidence: int, notes: str):
+        '''
+        Fills the labels with the specified values.
+        word: ancient word
+        translation: ancient word's translation
+        confidence: level of confidence in the translation
+        notes: additional notes
+        '''
         self.word.setText(word)
         self.translation.setText(translation)
         if confidence == 0:
@@ -264,6 +341,9 @@ class DefinitionPanel(QFrame):
 
 
 class Keyboard(QDialog):
+    '''
+    Popup dialog allowing to easily type ancient script.
+    '''
     def __init__(self, font):
         super().__init__()
         self.setWindowTitle("Ancient Runes Keyboard")
@@ -272,9 +352,12 @@ class Keyboard(QDialog):
 
         self._layout = QGridLayout()
         self.setLayout(self._layout)
-        self._create_display(self._layout)
+        self._create_display()
 
-    def _create_display(self, layout: QGridLayout):
+    def _create_display(self):
+        '''
+        Populates the frame.
+        '''
         self.buttons = {}
         base_char = ord("\ue000")
         for i in range(48):
@@ -283,7 +366,7 @@ class Keyboard(QDialog):
             ypos = i%10
             self.buttons[btn_text] = QPushButton(btn_text)
             self.buttons[btn_text].setFixedSize(40,40)
-            layout.addWidget(self.buttons[btn_text], xpos, ypos)
+            self._layout.addWidget(self.buttons[btn_text], xpos, ypos)
 
 
 def main():
