@@ -64,10 +64,10 @@ class Dictionary:
         '''
         if not words:
             words = Dictionary.entries.keys()
-        return sorted(words, lambda w: Dictionary.__sort_key(w))
+        return sorted(words, lambda w: Dictionary._sort_key(w))
 
     @staticmethod
-    def __sort_key(cls, word):
+    def _sort_key(cls, word):
         return reversed(word.strip([" ", "\ue00a", "\ue00b", "\ue00c"]))
 
     @staticmethod
